@@ -1,14 +1,10 @@
 Pebble
 ======================
-  Pebble is a dialect of the Lisp programming language, as the interpreter written in CoffeeScript.
+  Pebble is a dialect of the Lisp programming language translated to CoffeeScript.
 
 Features
 ----------
-* Lisp-1
-* First class macros
-* car, cdr, cons, eq, atom
-* def, if, lambda, macro, progn
-* quote, quasiquote, unquote, unquote-splicing
+* editing now.
 
 License
 ----------
