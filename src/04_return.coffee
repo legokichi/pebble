@@ -8,7 +8,7 @@
       if script.type is "text/pebble" then script.innerText
       else                                  ""
     code = codes.join("\n\n")
-    console.log emitter.coffee(code)
+    #console.log emitter.coffee(code)
     emitter.eval(code)
 
 
