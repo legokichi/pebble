@@ -55,7 +55,7 @@ global.Pebble = do ->
         _params = param.toArray().map (exp)-> exp.toCoffeeScript(i+1)
         _bodys = bodys.map (exp)-> exp.toCoffeeScript(i+1)
         wsbodys = _bodys.slice(1).map (cs)-> ws(i+1) + cs
-        "((" + _params.join(", ") + ")->" +
+        "((" + _params.join(", ") + ")->\n" +
          ws(i+1)+[].concat(_bodys[0],wsbodys).join("\n") + ")"
 
       ".": (args, i)->

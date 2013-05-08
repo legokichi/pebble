@@ -12,8 +12,6 @@
       ary.join("\n\n")
          .split("\n\n")
          .join("\n")
-         .split("\n\n")
-         .join("\n")
 
     compile = (code)->
       CoffeeScript.compile(coffee(code))
