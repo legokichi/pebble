@@ -4,8 +4,107 @@ Pebble
 
 Features
 ----------
-* editing now.
 
+### Function
+
+#### Pebble
+    (def square (fn [x] (* x x)))
+
+    (defn square [x] (* x x))
+
+    (square 4)
+
+    ((fn [x] (* x x)) 4)
+
+#### CoffeeScript
+    square = ((x)->
+      (x * x))
+
+    square = (x)->
+      (x * x)
+
+    square(4)
+    ((x)->
+      (x * x))(4)
+
+### if
+
+#### Pebble
+    (if true  :alway
+        false :never
+        (alert :andDefault))
+
+#### CoffeeScript
+    if true
+      "alway"
+    else if false
+      "never"
+    else
+      alert("andDefault")
+
+### let
+
+#### Pebble
+    (let [a 1
+          b 1]
+      (+ a b))
+
+
+### loop/recur
+
+#### Pebble
+    (loop [i 0]
+      (if (> i 10) i
+        (recur (+ i 1) (+ j 1))))
+
+#### CoffeeScript
+  do ->
+    i = 0
+    __recur__ = (args)->
+      i = args[0]
+    while true
+      return if (i > 10)
+        i
+      else
+        __recur__([(i + 1), (j + 1)])
+        continue
+      break
+
+### do
+
+#### Pebble
+    (def i 0)
+
+    (def j (do
+      (console.log i)
+      (+ i 1)))
+
+#### CoffeeScript
+    i = 0
+
+    j = (do ->
+      console.log(i)
+      (i + 1))
+
+### namespace
+
+#### Pebble
+    (ns name
+      ..)
+
+### class
+
+#### Pebble
+    (defclass name
+      ..)
+
+### try/catch/finally
+
+#### Pebble
+    (try
+      ..
+      (catch e ..)
+      (finally ..))
 
 Demo
 ----------

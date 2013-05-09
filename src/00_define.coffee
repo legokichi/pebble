@@ -29,52 +29,80 @@ global.Pebble = do ->
       obj.toCoffeeScript(i) + op
 
     return {
+      def:  binOp("=")
+
+      fn: ([param, body], i)->
+        _params = param.toArray().map (exp)-> exp.toCoffeeScript(i+1)
+        body = body.toCoffeeScript(i+1)
+        "((" + _params.join(", ") + ")->\n" +
+        ws(i+1) + body + ")"
+
+      defn: ([name, param, body], i)->
+        _params = param.toArray().map (exp)-> exp.toCoffeeScript(i+1)
+        body = body.toCoffeeScript(i+1)
+        "#{name} = (" + _params.join(", ") + ")->\n" +
+        ws(i+1) + body + "\n"
+
+      do: ([bodys...], i)->
+        _bodys = bodys.map (exp)-> exp.toCoffeeScript(i+1)
+        wsbodys = _bodys.map (body)-> ws(i+1) + body
+        "(do ->\n" +
+         wsbodys.join("\n") + ")"
+
       if: (args, i)->
-        [test, t, f] = args.map (exp)-> exp.toCoffeeScript(i+1)
-        "if " + test + "\n" +
-        ws(i+1) + t + "\n" +
-        ws(i) + "else\n" +
-        ws(i+1) + f + "\n"
+        _args = args.map (exp)-> exp.toCoffeeScript(i+1)
+        code = ""
+        [test, body, _args...] = _args
+        code += "if #{test}\n#{ws(i+1)}#{body}\n"
+        while true
+          [test, body, _args...] = _args # !! side effect !!
+          if test? and body?
+            code += "#{ws(i)}else if #{test}\n#{ws(i+1)}#{body}\n"
+          else if test? and !body?
+            code += "#{ws(i)}else\n#{ws(i+1)}#{test}\n"
+          else
+            break
+        code
+
       for: ([param, bodys...], i)->
         [symb, lst] = param.toArray().map (exp)-> exp.toCoffeeScript(i+1)
         _bodys = bodys.map (exp)-> exp.toCoffeeScript(i+1)
         wsbodys = _bodys.slice(1).map (cs)-> ws(i+1) + cs
         "for " + symb + " in " + lst + "\n" +
         ws(i+1)+[].concat(_bodys[0],wsbodys).join("\n") + "\n"
-      while: (args, i)->
-        [test, bodys...] = args.map (exp)-> exp.toCoffeeScript(i+1)
-        wsbodys = bodys.slice(1).map (cs)-> ws(i+1) + cs
-        "while " + test + "\n" +
-        ws(i+1)+[].concat(bodys[0],wsbodys).join("\n") + "\n"
-      do:  (args, i)->
-        bodys = args.map (exp)-> exp.toCoffeeScript(i)
-        wsbodys = bodys.slice(1).map (cs)-> ws(i) + cs
-        [].concat(bodys[0],wsbodys).join("\n") + "\n"
 
-      fn: ([param, bodys...], i)->
-        _params = param.toArray().map (exp)-> exp.toCoffeeScript(i+1)
+      forof: ([param, bodys...], i)->
+        [symb, lst] = param.toArray().map (exp)-> exp.toCoffeeScript(i+1)
         _bodys = bodys.map (exp)-> exp.toCoffeeScript(i+1)
         wsbodys = _bodys.slice(1).map (cs)-> ws(i+1) + cs
-        "((" + _params.join(", ") + ")->\n" +
-         ws(i+1)+[].concat(_bodys[0],wsbodys).join("\n") + ")"
+        "for " + symb + " of " + lst + "\n" +
+        ws(i+1)+[].concat(_bodys[0],wsbodys).join("\n") + "\n"
+
+      loop: ([defs, body], i)->
+        _defs = defs.toArray().map (exp)-> exp.toCoffeeScript(i+1)
+        j = 0
+        ary = []
+        while true
+          if _defs.length <= j
+            break
+          else
+            ary.push([_defs[j++], _defs[j++]]) # !! side effect !!
+        "do ->\n" +
+        ary.map(([name, val])-> ws(i+1) + "#{name} = #{val}").join("\n") + "\n" +
+        ws(i+1) + "__recur__ = (args)->\n" +
+        ary.map(([name, val], k)-> ws(i+2) + "#{name} = args[#{k}]").join("\n") + "\n" +
+        ws(i+1) + "while true\n" +
+        ws(i+2) + "return " + body.toCoffeeScript(i+2) + "\n" +
+        ws(i+2) + "break\n"
+
+      recur: (args,i)->
+        _args = args.map (exp)-> exp.toCoffeeScript(i+1)
+        "__recur__(["+_args.join(", ")+"])\n" +
+        ws(i) + "continue\n"
 
       ".": (args, i)->
         [prop, obj] = args.map (exp)-> exp.toCoffeeScript(i)
         obj + "[\"" + prop + "\"]"
-
-      "=":  binOp("=")
-      "+=": binOp("+=")
-      "-=": binOp("-=")
-      "*=": binOp("*=")
-      "/=": binOp("/=")
-      "%=": binOp("%=")
-      "<<=":  binOp("<<=")
-      ">>=":  binOp(">>=")
-      ">>>=": binOp(">>>=")
-      "&=": binOp("&=")
-      "^=": binOp("^=")
-      "|=": binOp("|=")
-      "?=": binOp("?=")
 
       is:   binOp("is")
       isnt: binOp("isnt")

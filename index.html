@@ -21,29 +21,27 @@ html,body,
 </head>
 <body>
 <textarea id="Pebble">
-((. log console) :HelloPebble!)
+(def zero 0)
 
-(= number 42)
-(= opposite true)
+((fn [x] (* x x)) 4)
 
-(= number (if opposite -42))
+(def square (fn [x] (* x x)))
 
-(= square (fn [x] (* x x)))
+(square 2)
 
-(= list [1 2 3 4 5])
+(if true  :alway
+    false :never
+    (alert :default))
 
-(= math {
-  :root   Math.sqrt
-  :square square
-  :cube   (fn [x] (* x (square x)))
-})
+(loop [i 0]
+  (if (&gt; i 10) i
+    (recur
+      (do
+        (console.log i)
+        (+ i 1)))))
 
-(if (? elvis)
-  (alert "I knew it!"))
 
-(= cubes (for [num list] (math.cube num)))
 
-(console.log cubes)
 </textarea>
 <textarea id="CoffeeScript"></textarea>
 <textarea id="JavaScript"></textarea>
@@ -60,10 +58,10 @@ html,body,
     function refresh(){
       var pebbleCode = pebbleEl.value;
       var coffeeCode = Pebble.coffee(pebbleCode);
-      var jsCode     = Pebble.compile(pebbleCode);
       coffeeEl.value = coffeeCode;
+      var jsCode     = Pebble.compile(pebbleCode);
       jsEl.value     = jsCode;
-      setTimeout(function(){Pebble.eval(pebbleCode);});
+      //setTimeout(function(){Pebble.eval(pebbleCode);});
     }
   });
 }());
