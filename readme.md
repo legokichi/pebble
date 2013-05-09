@@ -40,7 +40,6 @@ for
 
 do
 ----------
-#### Pebble
     (def i 0)
     
     (def j (do
@@ -53,11 +52,11 @@ namespace
     (module math
       (def deg 10)
       (export pi 3.24)
-      (export sum #(+ (:0 _) (:1 _))
+      (export sum #(+ (:0 _) (:1 _)))
 
-     (.sum math 0 1)
-     (. math sum 0 1)
-     ((. math sum) 0 1)
+    (.sum math 0 1)
+    (. math sum 0 1)
+    ((. math sum) 0 1)
 
 class
 ----------
