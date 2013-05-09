@@ -8,11 +8,14 @@
       {expressions: root(code, [])}
 
 
-    space = (str)-> # String
-      if /^\S/.test(str) or str.length is 0 then str
-      else
-        n = /^\s+/.exec(str)[0];
-        str.slice(n.length)
+    space = do ->
+      wsReg = /(?:^;.*\n?)|(?:^\s+)/
+      (str)-> # String
+        if wsReg.test(str)
+          n = wsReg.exec(str)[0];
+          str.slice(n.length)
+        else
+          str
 
 
     root = (str, ary)-> # [Expression]
@@ -28,10 +31,21 @@
       _str = space(str)
       if _str.length is 0 then throw "SyntaxError: Unexpected EOF"
       [head, tail] = [_str[0], _str.slice(1)]
-      if      head is "(" then form(tail, new Call([]))
+      if      head is "#"
+        rstr1 = space(tail)
+        if rstr1[0] is "("
+          [rstr2, call] = expr(rstr1)
+          [rstr2, new Call([
+            new Symbol("fn"),
+            new Vector([
+              new Symbol("_...")]),
+              call
+          ])]
+        else thorw  "SyntaxError: Unexpected reader macro " + head + tail
+      else if head is "(" then form(tail, new Call([]))
       else if head is "[" then vect(tail, new Vector([]))
       else if head is "{" then hash(tail, new Hash({}))
-      else                atom(_str)
+      else                     atom(_str)
 
 
     form = (str, frm)-> # [String, Form]
@@ -39,17 +53,21 @@
       [head, tail] = [_str[0], _str.slice(1)]
       if head is ")" then [tail, frm]
       else
-        [rstr1, exp1] = expr(_str)
-        form(rstr1, frm.append(exp1))
+        [rstr, exp1] = expr(_str)
+        form(rstr, frm.append(exp1))
 
 
     vect = (str, vct)-> # [String, Vector]
       _str = space(str)
       [head, tail] = [_str[0], _str.slice(1)]
       if head is "]" then [tail, vct]
+      else if head is "&"
+        [rstr, symb] = expr(space(tail))
+        symb.value += "..." # !! side effect !!
+        vect(rstr, vct.append(symb))
       else
-        [rstr1, exp1] = expr(_str)
-        vect(rstr1, vct.append(exp1))
+        [rstr, exp] = expr(_str)
+        vect(rstr, vct.append(exp))
 
 
     hash = (str, hsh)-> # [String, Hash]
@@ -58,18 +76,27 @@
       if head is "}" then [tail, hsh]
       else
         [rstr1, exp1] = expr(_str)
-        [rstr2, exp2] = expr(rstr1)
-        hash(rstr2, hsh.set(exp1, exp2))
+        rstr2 = space(rstr1)
+        if rstr2[0] is "}"
+          [rstr2.slice(1), hsh.set(exp1, new Text(exp1))]
+        else
+          [rstr3, exp2] = expr(rstr2)
+          hash(rstr3, hsh.set(exp1, exp2))
 
 
     atom = do ->
       textReg = /^\"((?:[^\"\\]|(?:\\(?:\"|\\|\/|b|f|n|r|t|u[0-9a-fA-F]{4})))*)\"/
       keywordReg = /^\:[^\s\"\'\`\,\@\#\;\(\)\[\]\{\}\:]+/
       numeralReg = /^\-?(?:0|[1-9]\d*)(?:\.\d+)?(?:(?:e|E)(?:\+|\-)?\d+)?/
-      symbolReg = /^[^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\d][^\s\"\'\`\,\@\;\(\)\[\]\{\}\:]*/
+      symbolReg = /^[^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\d][^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\/]*/
+      propReg = /^\.[^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\d\/\.][^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\/]*/
       (str)-> # [String, Expression]
         _str = space(str)
-        if symbolReg.test(_str)
+        if propReg.test(_str)
+          val = propReg.exec(_str)[0]
+          rstr = _str.slice(val.length)
+          [rstr, new Property(val)]
+        else if symbolReg.test(_str)
           val = symbolReg.exec(_str)[0]
           rstr = _str.slice(val.length)
           [rstr, new Symbol(val)]
@@ -80,11 +107,11 @@
         else if keywordReg.test(_str)
           val = keywordReg.exec(_str)[0]
           rstr = _str.slice(val.length)
-          [rstr, new Text(val.slice(1))]
+          [rstr, new Keyword(val.slice(1))]
         else if textReg.test(_str)
           [mch, val] = textReg.exec(_str)
-          remainStr = _str.slice(mch.length)
-          [remainStr, new Text(val)]
+          rstr = _str.slice(mch.length)
+          [rstr, new Text(val)]
         else throw "SyntaxError: Unexpected identifier " + _str
 
 

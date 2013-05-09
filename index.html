@@ -21,27 +21,7 @@ html,body,
 </head>
 <body>
 <textarea id="Pebble">
-(def zero 0)
-
-((fn [x] (* x x)) 4)
-
-(def square (fn [x] (* x x)))
-
-(square 2)
-
-(if true  :alway
-    false :never
-    (alert :default))
-
-(loop [i 0]
-  (if (&gt; i 10) i
-    (recur
-      (do
-        (console.log i)
-        (+ i 1)))))
-
-
-
+(.log console :helloPebble)
 </textarea>
 <textarea id="CoffeeScript"></textarea>
 <textarea id="JavaScript"></textarea>
@@ -56,12 +36,12 @@ html,body,
     pebbleEl.addEventListener("keyup", refresh);
     refresh();
     function refresh(){
+      console.clear()
       var pebbleCode = pebbleEl.value;
-      var coffeeCode = Pebble.coffee(pebbleCode);
+      var coffeeCode = PebbleScript.coffee(pebbleCode);
       coffeeEl.value = coffeeCode;
-      var jsCode     = Pebble.compile(pebbleCode);
+      var jsCode     = PebbleScript.compile(pebbleCode);
       jsEl.value     = jsCode;
-      //setTimeout(function(){Pebble.eval(pebbleCode);});
     }
   });
 }());

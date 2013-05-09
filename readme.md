@@ -12,42 +12,11 @@ Function
 
     ((fn [x] (* x x)) 4)
 
-translates to the following JavaScript:
-
-    var square;
-
-    square = (function(x) {
-      return x * x;
-    });
-
-    square = (function(x) {
-      return x * x;
-    });
-
-    square = (x)->
-      (x * x)
-
-    square(4)
-
-    (function(x) {
-      return x * x;
-    })(4);
-
 if
 ----------
     (if true  :alway
         false :never
         (alert :andDefault))
-
-becomes:
-
-    if (true) {
-      "alway";
-    } else if (false) {
-      "never";
-    } else {
-      alert("default");
-    }
 
 let
 ----------
@@ -64,29 +33,6 @@ loop/recur
             (console.log i)
             (+ i 1)))))
 
-translates to the following JavaScript:
-
-    (function() {
-      var i, __recur__;
-      i = 0;
-      __recur__ = function(args) {
-        return i = args[0];
-      };
-      while (true) {
-        if (i > 10) {
-          return i;
-        } else {
-          __recur__([
-            (function() {
-              console.log(i);
-              return i + 1;
-            })()
-          ]);
-          continue;
-        }
-        break;
-      }
-    })();
 
 do
 ----------
@@ -97,26 +43,30 @@ do
       (console.log i)
       (+ i 1)))
 
-translates to:
-
-    var i, j;
-
-    i = 0;
-
-    j = (function() {
-      console.log(i);
-      return i + 1;
-    })();
 
 namespace
 ----------
-    (namespace name
-      ..)
+    (module math
+      (def deg 10)
+      (export pi 3.24)
+      (export sum #(+ (:0 _) (:1 _))
+
+     (.sum math 0 1)
+     (. math sum 0 1)
+     ((. math sum) 0 1)
 
 class
 ----------
-    (defclass name
+    (defclass Hoge
+      (fn [x] 
+        (do
+          (private a a)
+          ..)
+      (public a )
       ..)
+
+    (new Hoge 0)
+
 
 try/catch/finally
 ----------

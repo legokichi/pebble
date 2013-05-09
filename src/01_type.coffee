@@ -6,8 +6,10 @@
     isVector: -> @ instanceof Vector
     isCall:   -> @ instanceof Call
     isSymbol: -> @ instanceof Symbol
+    isProperty:-> @ instanceof Property
     isNumeral:-> @ instanceof Numeral
     isText:   -> @ instanceof Text
+    isKeyword:-> @ instanceof Keyword
     constructor: (any)->
       @value = any
     toString: ->
@@ -30,12 +32,13 @@
       obj[key] = val for key, val of @value
       obj
     toCoffeeScript: (i=0)->
-      ary = []
-      for key, val of @value
-        ary.push(ws(i+1) + key + ": " + val.toCoffeeScript(i+1))
-      "{\n" +
-       ary.join("\n") +
-      ws(i) + "}\n"
+      _hsh = ([key, val] for key, val of @value)
+        .map(([key, val])-> "#{ws(i+1)}#{key}: #{val.toCoffeeScript(i+1)}")
+      """
+      {\n
+      #{_hsh}
+      #{ws(i)}}
+      """
 
 
   class Vector extends Hash
@@ -57,19 +60,29 @@
       @value = val or []
     toCoffeeScript: (i=0)->
       [head, tail...] = @value
-      operator = head.toCoffeeScript(i)
-      if special[operator]?
+      [operator, operands...] = @value.map (exp)->
+        exp.toCoffeeScript(i)
+      if head.isProperty()
+        operands[0] + operator + "(" + operands.slice(1).join(", ") + ")"
+      else if head.isKeyword()
+        if isFinite(Number(head.value))
+          operands[0] + "["+ Number(head.value) + "]"
+        else
+          operands[0] + "["+ operator + "]"
+      else if special[operator]?
         special[operator](tail, i)
       else
-        operands = tail.map (exp)-> exp.toCoffeeScript(i)
         operator + "(" + operands.join(", ") + ")"
 
 
   class Symbol extends Expression
     toCoffeeScript: (i=0)->
-      if /^&/.test(@value) then @value.slice(1) + "..."
-      else                      @value
+      @value.toString()
 
+  class Property extends Symbol
+    constructor: (@value)->
+    toCoffeeScript: (i=0)->
+      @value.toString()
 
   class Numeral extends Expression
     toCoffeeScript: (i=0)->
@@ -81,4 +94,8 @@
       str = @value.replace("\\","\\\\")
       "\"" + str + "\""
 
-
+  class Keyword extends Text
+    constructor: (@value)->
+    toCoffeeScript: (i=0)->
+      str = @value.replace("\\","\\\\")
+      "\"" + str + "\""
