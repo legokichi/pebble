@@ -21,7 +21,8 @@ if
 let
 ----------
     (let [a 1
-          b 1]
+          [b c d] [0 1 2]
+          {:e} {:e "uha"}]
       (+ a b))
 
 loop/recur
@@ -33,6 +34,9 @@ loop/recur
             (console.log i)
             (+ i 1)))))
 
+for
+----------
+    (for [x lst] x)
 
 do
 ----------
@@ -74,11 +78,6 @@ try/catch/finally
       ..
       (catch e ..)
       (finally ..))
-
-macro
-----------
-    (defmacro unless [test t f]
-      `(if ~test ~f ~t))
 
 Demo
 ----------
