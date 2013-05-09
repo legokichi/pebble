@@ -5,13 +5,15 @@ Pebble
 Function
 ----------
     (def square (fn [x] (* x x)))
-    
+
     (defn square [x] (* x x))
-    
+
     (square 4)
-    
+
     ((fn [x] (* x x)) 4)
+
 translates to the following CoffeeScript:
+
     square = ((x)->
       (x * x))
 
@@ -27,7 +29,9 @@ if
     (if true  :alway
         false :never
         (alert :andDefault))
+
 becomes:
+
     if true
       "alway"
     else if false
@@ -41,24 +45,25 @@ let
           b 1]
       (+ a b))
 
-
 loop/recur
 ----------
     (loop [i 0]
       (if (> i 10) i
         (recur (+ i 1) (+ j 1))))
+
 translates to the following CoffeeScript:
-  do ->
-    i = 0
-    __recur__ = (args)->
-      i = args[0]
-    while true
-      return if (i > 10)
-        i
-      else
-        __recur__([(i + 1), (j + 1)])
-        continue
-      break
+
+    do ->
+      i = 0
+      __recur__ = (args)->
+        i = args[0]
+      while true
+        return if (i > 10)
+          i
+        else
+          __recur__([(i + 1), (j + 1)])
+          continue
+        break
 
 do
 ----------
@@ -68,7 +73,9 @@ do
     (def j (do
       (console.log i)
       (+ i 1)))
+
 translates to:
+
     i = 0
     
     j = (do ->
