@@ -2,21 +2,16 @@ Pebble
 ======================
   Pebble is a dialect of the Lisp programming language translated to CoffeeScript.
 
-Features
+Function
 ----------
-
-### Function
-
-#### Pebble
     (def square (fn [x] (* x x)))
-
+    
     (defn square [x] (* x x))
-
+    
     (square 4)
-
+    
     ((fn [x] (* x x)) 4)
-
-#### CoffeeScript
+translates to the following CoffeeScript:
     square = ((x)->
       (x * x))
 
@@ -27,14 +22,12 @@ Features
     ((x)->
       (x * x))(4)
 
-### if
-
-#### Pebble
+if
+----------
     (if true  :alway
         false :never
         (alert :andDefault))
-
-#### CoffeeScript
+becomes:
     if true
       "alway"
     else if false
@@ -42,22 +35,19 @@ Features
     else
       alert("andDefault")
 
-### let
-
-#### Pebble
+let
+----------
     (let [a 1
           b 1]
       (+ a b))
 
 
-### loop/recur
-
-#### Pebble
+loop/recur
+----------
     (loop [i 0]
       (if (> i 10) i
         (recur (+ i 1) (+ j 1))))
-
-#### CoffeeScript
+translates to the following CoffeeScript:
   do ->
     i = 0
     __recur__ = (args)->
@@ -70,37 +60,33 @@ Features
         continue
       break
 
-### do
-
+do
+----------
 #### Pebble
     (def i 0)
-
+    
     (def j (do
       (console.log i)
       (+ i 1)))
-
-#### CoffeeScript
+translates to:
     i = 0
-
+    
     j = (do ->
       console.log(i)
       (i + 1))
 
-### namespace
-
-#### Pebble
-    (ns name
+namespace
+----------
+    (namespace name
       ..)
 
-### class
-
-#### Pebble
+class
+----------
     (defclass name
       ..)
 
-### try/catch/finally
-
-#### Pebble
+try/catch/finally
+----------
     (try
       ..
       (catch e ..)
