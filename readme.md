@@ -1,6 +1,6 @@
 Pebble
 ======================
-  Pebble is a dialect of the Lisp programming language translated to CoffeeScript.
+  Pebble is a dialect of the Lisp programming language translated to JavaScript.
 
 Function
 ----------
@@ -12,17 +12,26 @@ Function
 
     ((fn [x] (* x x)) 4)
 
-translates to the following CoffeeScript:
+translates to the following JavaScript:
 
-    square = ((x)->
-      (x * x))
+    var square;
+
+    square = (function(x) {
+      return x * x;
+    });
+
+    square = (function(x) {
+      return x * x;
+    });
 
     square = (x)->
       (x * x)
 
     square(4)
-    ((x)->
-      (x * x))(4)
+
+    (function(x) {
+      return x * x;
+    })(4);
 
 if
 ----------
@@ -32,12 +41,13 @@ if
 
 becomes:
 
-    if true
-      "alway"
-    else if false
-      "never"
-    else
-      alert("andDefault")
+    if (true) {
+      "alway";
+    } else if (false) {
+      "never";
+    } else {
+      alert("default");
+    }
 
 let
 ----------
@@ -49,21 +59,34 @@ loop/recur
 ----------
     (loop [i 0]
       (if (> i 10) i
-        (recur (+ i 1) (+ j 1))))
+        (recur
+          (do
+            (console.log i)
+            (+ i 1)))))
 
-translates to the following CoffeeScript:
+translates to the following JavaScript:
 
-    do ->
-      i = 0
-      __recur__ = (args)->
-        i = args[0]
-      while true
-        return if (i > 10)
-          i
-        else
-          __recur__([(i + 1), (j + 1)])
-          continue
-        break
+    (function() {
+      var i, __recur__;
+      i = 0;
+      __recur__ = function(args) {
+        return i = args[0];
+      };
+      while (true) {
+        if (i > 10) {
+          return i;
+        } else {
+          __recur__([
+            (function() {
+              console.log(i);
+              return i + 1;
+            })()
+          ]);
+          continue;
+        }
+        break;
+      }
+    })();
 
 do
 ----------
@@ -76,11 +99,14 @@ do
 
 translates to:
 
-    i = 0
-    
-    j = (do ->
-      console.log(i)
-      (i + 1))
+    var i, j;
+
+    i = 0;
+
+    j = (function() {
+      console.log(i);
+      return i + 1;
+    })();
 
 namespace
 ----------
@@ -99,9 +125,18 @@ try/catch/finally
       (catch e ..)
       (finally ..))
 
+macro
+----------
+    (defmacro unless [test t f]
+      `(if ~test ~f ~t))
+
 Demo
 ----------
 * https://dl.dropboxusercontent.com/u/265158/GitHub/pebble/index.html
+
+Dependence
+----------
+* coffee-script.js <[cofee-script](https://github.com/jashkenas/coffee-script/)>
 
 License
 ----------
