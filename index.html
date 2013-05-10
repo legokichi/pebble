@@ -43,6 +43,11 @@
   left: 0px;
   width: 100%;
   height: 100%;
+  height: -webkit-calc(100% - 30px);
+  height: -moz-calc(100% - 30px);
+  height: -ie-calc(100% - 30px);
+  height: -o-calc(100% - 30px);
+  height: calc(100% - 30px);
   resize: none;
 }
 .repl_wrapper > .code > .repl_source_wrap > .error{
@@ -104,8 +109,8 @@
     jButtonEl.addEventListener("click", runCodeJ);
     refreshP();
     function refreshP(){
-      pebbleErEl.innerHTML = ""
-      coffeeErEl.innerHTML = ""
+      pebbleErEl.innerHTML = "";
+      coffeeErEl.innerHTML = "";
       var pebbleCode = pebbleEl.value;
       try{
         var coffeeCode = PebbleScript.coffee(pebbleCode);
@@ -113,11 +118,11 @@
         try{
           var jsCode = PebbleScript.compile(pebbleCode);
         }catch(e){
-          coffeeErEl.innerHTML = e
+          coffeeErEl.innerHTML = e;
         }
         jsEl.value     = jsCode;
       }catch(e){
-        pebbleErEl.innerHTML = e
+        pebbleErEl.innerHTML = e;
       }
     }
     function refreshC(){
@@ -127,7 +132,7 @@
         var jsCode     = CoffeeScript.compile(coffeeCode);
         jsEl.value     = jsCode;
       }catch(e){
-        coffeeErEl.innerHTML = e
+        coffeeErEl.innerHTML = e;
       }
     }
     function runCodeP(){
