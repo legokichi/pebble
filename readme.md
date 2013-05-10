@@ -93,13 +93,13 @@ try/catch/finally
 
 Operators
 ----------
-. ..
-== !=
-> >= < <=
-+ - * / %
-& | ^ ~ << >> >>>
-and or not ?
-delete of typeof instanceof
+    . ..
+    == !=
+    > >= < <=
+    + - * / %
+    & | ^ ~ << >> >>>
+    and or not ?
+    delete of typeof instanceof
 
 
 Embedded CofeeScript/JavaScript
