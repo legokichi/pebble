@@ -90,12 +90,17 @@
       numeralReg = /^\-?(?:0|[1-9]\d*)(?:\.\d+)?(?:(?:e|E)(?:\+|\-)?\d+)?/
       symbolReg = /^[^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\d][^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\/]*/
       propReg = /^\.[^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\d\/\.][^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\/]*/
+      regReg = /^\/(?:[^\s\/\\]|(?:\\[\/\:\\\^\$\*\+\?\.\(\)\:\=\!\|\{\}\,\[\]bBcdDfnrsStvwWn0xu]))*\/(?:[gimy]{0,4})?/
       (str)-> # [String, Expression]
         _str = space(str)
         if propReg.test(_str)
           val = propReg.exec(_str)[0]
           rstr = _str.slice(val.length)
           [rstr, new Property(val)]
+        else if regReg.test(_str)
+          val = regReg.exec(_str)[0]
+          rstr = _str.slice(val.length)
+          [rstr, new Regular(val)]
         else if symbolReg.test(_str)
           val = symbolReg.exec(_str)[0]
           rstr = _str.slice(val.length)

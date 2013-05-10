@@ -99,3 +99,9 @@
     toCoffeeScript: (i=0)->
       str = @value.replace("\\","\\\\")
       "\"" + str + "\""
+
+  class Regular extends Expression
+    constructor: (@value)->
+    toCoffeeScript: (i=0)->
+      @value
+

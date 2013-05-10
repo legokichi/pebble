@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 <link rel="stylesheet" type="text/css" href="./normalize.css" />
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=PT+Sans" />
 <title>pebble</title>
 <style>
 .repl_wrapper{
@@ -15,6 +16,7 @@
   margin: 0px;
   border: none;
   padding: 0px;
+  font-family: "PT Sans";
 }
 .repl_wrapper > .code{
   position: absolute;
@@ -72,13 +74,13 @@
       <div>Pebble</div>
       <textarea id="PebbleScript" row="100">(alert "Hello Pebble")</textarea>
       <div class="error" id="PebbleError"></div>
-      <button class="run" id="pRun">RUN</button>
+      <!--button class="run" id="pRun">RUN</button-->
     </div>
     <div class="repl_source_wrap">
       <div>CoffeeScript</div>
       <textarea id="CoffeeScript" row="100"></textarea>
       <div class="error" id="CoffeeError"></div>
-      <button class="run" id="cRun">RUN</button>
+      <!--button class="run" id="cRun">RUN</button-->
     </div>
     <div class="repl_source_wrap">
       <div>JavaScript</div>
@@ -104,10 +106,16 @@
     var jButtonEl = document.getElementById("jRun");
     pebbleEl.addEventListener("keyup", refreshP);
     coffeeEl.addEventListener("keyup", refreshC);
-    pButtonEl.addEventListener("click", runCodeP);
-    cButtonEl.addEventListener("click", runCodeC);
+    //pButtonEl.addEventListener("click", runCodeP);
+    //cButtonEl.addEventListener("click", runCodeC);
     jButtonEl.addEventListener("click", runCodeJ);
+    if(window.sessionStorage.getItem("autosave")){
+      pebbleEl.value = window.sessionStorage.getItem("autosave");
+    }
     refreshP();
+    setInterval(function(){
+      window.sessionStorage.setItem("autosave", pebbleEl.value);
+    },1000);
     function refreshP(){
       pebbleErEl.innerHTML = "";
       coffeeErEl.innerHTML = "";

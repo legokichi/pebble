@@ -12,10 +12,17 @@ global.PebbleScript = do ->
 
   ws = (i)-> [0..i].map(->"").join("  ")
 
+  extend = (parent, attr)->
+    f = ->
+      for key, val of attr
+        @[key] = val
+    f.prototype = attr
+    new f()
 
   special = do ->
 
     nthOp = (op)-> (args, i)->
+      if args.length < 2 then args.unshift(new Numeral(0)) # !! side effect !!
       _body = args.map((exp)-> exp.toCoffeeScript(i+1))
                   .join(" #{op} ")
       "(#{_body})"
@@ -216,6 +223,17 @@ global.PebbleScript = do ->
                     .join(", ")
         "new #{_class}(#{_args})\n"
 
+      coffee: ([text], i)->
+        _bodys = text.toString()
+                     .split("\n")
+                     .map((line)-> "#{ws(i+1)}#{line}")
+                     .join("\n")
+        """
+        (do ->
+        #{_bodys}\n
+        #{ws(i)})
+        """
+
       "set!": nthOp("=")
 
       "==": nthOp("is")
@@ -241,7 +259,7 @@ global.PebbleScript = do ->
 
       and:nthOp("and")
       or : nthOp("or")
-      "!":  bfrOp("!")
+      not:  bfrOp("!")
 
       "?":  aftOp("?")
 
