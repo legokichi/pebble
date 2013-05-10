@@ -3,45 +3,144 @@
 <head>
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<link rel="stylesheet" type="text/css" href="./normalize.css" />
 <title>pebble</title>
 <style>
-html,body,
-#Pebble, #CoffeeScript, #JavaScript{
-  box-sizing: border-box;
-  position: relative;
+.repl_wrapper{
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
   height: 100%;
   margin: 0px;
+  border: none;
+  padding: 0px;
 }
-#Pebble, #CoffeeScript, #JavaScript{
-  float: left;
+.repl_wrapper > .code{
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  border: none;
+  padding: 0px;
+}
+.repl_wrapper > .code > .repl_source_wrap{
+  position: relative;
+  top: 0px;
+  left: 0px;
   width: 33%;
-  border: 1px solid black;
+  height: 100%;
+  margin: 0px;
+  border: none;
+  padding: 0px;
+  float: left;
+}
+.repl_wrapper > .code > .repl_source_wrap > textarea{
+  position: absolute;
+  top: 30px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  resize: none;
+}
+.repl_wrapper > .code > .repl_source_wrap > .error{
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  color: red;
+}
+.run{
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 60px;
+  height: 30px;
 }
 </style>
 </head>
 <body>
-<textarea id="Pebble">
-(.log console :helloPebble)
-</textarea>
-<textarea id="CoffeeScript"></textarea>
-<textarea id="JavaScript"></textarea>
+<div class="repl_wrapper">
+  <div class="code">
+    <div class="repl_source_wrap">
+      <div>Pebble</div>
+      <textarea id="PebbleScript" row="100">(alert "Hello Pebble")</textarea>
+      <div class="error" id="PebbleError"></div>
+      <button class="run" id="pRun">RUN</button>
+    </div>
+    <div class="repl_source_wrap">
+      <div>CoffeeScript</div>
+      <textarea id="CoffeeScript" row="100"></textarea>
+      <div class="error" id="CoffeeError"></div>
+      <button class="run" id="cRun">RUN</button>
+    </div>
+    <div class="repl_source_wrap">
+      <div>JavaScript</div>
+      <textarea id="JavaScript" row="100"></textarea>
+      <div class="error" id="JSError"></div>
+      <button class="run" id="jRun">RUN</button>
+    </div>
+  </div>
+</div>
 <script src="./lib/coffee-script.js"></script>
 <script src="./bin/pebble.js"></script>
 <script type="text/javascript">
 (function(){
   window.addEventListener("load", function(){
-    var pebbleEl = document.getElementById("Pebble");
+    var pebbleEl = document.getElementById("PebbleScript");
     var coffeeEl = document.getElementById("CoffeeScript");
     var jsEl     = document.getElementById("JavaScript");
-    pebbleEl.addEventListener("keyup", refresh);
-    refresh();
-    function refresh(){
-      console.clear()
+    var pebbleErEl = document.getElementById("PebbleError")
+    var coffeeErEl = document.getElementById("CoffeeError")
+    var jsErEl     = document.getElementById("JSError");
+    var pButtonEl = document.getElementById("pRun");
+    var cButtonEl = document.getElementById("cRun");
+    var jButtonEl = document.getElementById("jRun");
+    pebbleEl.addEventListener("keyup", refreshP);
+    coffeeEl.addEventListener("keyup", refreshC);
+    pButtonEl.addEventListener("click", runCodeP);
+    cButtonEl.addEventListener("click", runCodeC);
+    jButtonEl.addEventListener("click", runCodeJ);
+    refreshP();
+    function refreshP(){
+      pebbleErEl.innerHTML = ""
+      coffeeErEl.innerHTML = ""
       var pebbleCode = pebbleEl.value;
-      var coffeeCode = PebbleScript.coffee(pebbleCode);
-      coffeeEl.value = coffeeCode;
-      var jsCode     = PebbleScript.compile(pebbleCode);
-      jsEl.value     = jsCode;
+      try{
+        var coffeeCode = PebbleScript.coffee(pebbleCode);
+        coffeeEl.value = coffeeCode;
+        try{
+          var jsCode = PebbleScript.compile(pebbleCode);
+        }catch(e){
+          coffeeErEl.innerHTML = e
+        }
+        jsEl.value     = jsCode;
+      }catch(e){
+        pebbleErEl.innerHTML = e
+      }
+    }
+    function refreshC(){
+      coffeeErEl.innerHTML = ""
+      var coffeeCode = coffeeEl.value;
+      try{
+        var jsCode     = CoffeeScript.compile(coffeeCode);
+        jsEl.value     = jsCode;
+      }catch(e){
+        coffeeErEl.innerHTML = e
+      }
+    }
+    function runCodeP(){
+      var pebbleCode = pebbleEl.value;
+      PebbleScript.eval(pebbleCode);
+    }
+    function runCodeC(){
+      var coffeeCode = coffeeEl.value;
+      CoffeeScript.eval(coffeeCode);
+    }
+    function runCodeJ(){
+      var jsCode = jsEl.value;
+      new Function(jsCode)();
     }
   });
 }());

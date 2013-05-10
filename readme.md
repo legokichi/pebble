@@ -80,7 +80,7 @@ try/catch/finally
 
 Demo
 ----------
-* https://dl.dropboxusercontent.com/u/265158/GitHub/pebble/index.html
+* [REPL](https://dl.dropboxusercontent.com/u/265158/GitHub/pebble/index.html)
 
 Dependence
 ----------
