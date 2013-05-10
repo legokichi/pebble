@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 <link rel="stylesheet" type="text/css" href="./normalize.css" />
-<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=PT+Sans" />
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=PT+Sans" />
 <title>pebble</title>
 <style>
 .repl_wrapper{
@@ -16,7 +16,6 @@
   margin: 0px;
   border: none;
   padding: 0px;
-  font-family: "PT Sans";
 }
 .repl_wrapper > .code{
   position: absolute;
@@ -38,25 +37,28 @@
   border: none;
   padding: 0px;
   float: left;
+  font-family: "PT Sans";
 }
 .repl_wrapper > .code > .repl_source_wrap > textarea{
   position: absolute;
   top: 30px;
   left: 0px;
   width: 100%;
-  height: 100%;
-  height: -webkit-calc(100% - 30px);
-  height: -moz-calc(100% - 30px);
-  height: -ie-calc(100% - 30px);
-  height: -o-calc(100% - 30px);
-  height: calc(100% - 30px);
+  height: 90%;
+  height: -webkit-calc(100% - 40px);
+  height: -moz-calc(100% - 40px);
+  height: -ie-calc(100% - 40px);
+  height: -o-calc(100% - 40px);
+  height: calc(100% - 40px);
   resize: none;
+    font-family: "PT Sans";
 }
 .repl_wrapper > .code > .repl_source_wrap > .error{
   position: absolute;
   bottom: 0px;
   left: 0px;
   color: red;
+  font-family: "PT Sans";
 }
 .run{
   position: absolute;
@@ -64,6 +66,7 @@
   right: 0px;
   width: 60px;
   height: 30px;
+  font-family: "PT Sans";
 }
 </style>
 </head>
@@ -124,7 +127,7 @@
         var coffeeCode = PebbleScript.coffee(pebbleCode);
         coffeeEl.value = coffeeCode;
         try{
-          var jsCode = PebbleScript.compile(pebbleCode);
+          var jsCode = CoffeeScript.compile(coffeeCode,{bare:true});
         }catch(e){
           coffeeErEl.innerHTML = e;
         }
@@ -137,7 +140,7 @@
       coffeeErEl.innerHTML = ""
       var coffeeCode = coffeeEl.value;
       try{
-        var jsCode     = CoffeeScript.compile(coffeeCode);
+        var jsCode     = CoffeeScript.compile(coffeeCode,{bare:true});
         jsEl.value     = jsCode;
       }catch(e){
         coffeeErEl.innerHTML = e;
