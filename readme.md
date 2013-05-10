@@ -3,6 +3,11 @@ Pebble
   Pebble is a dialect of the Lisp programming language translated to JavaScript.
 
 
+Demo
+----------
+* [REPL](https://dl.dropboxusercontent.com/u/265158/GitHub/pebble/index.html)
+
+
 Function
 ----------
     (def square (fn [x] (* x x)))
@@ -58,7 +63,7 @@ namespace
     (module math
       (def deg 10)
       (export pi 3.24)
-      (export sum #(+ (:0 _) (:1 _)))
+      (export sum #(+ (:0 _) (:1 _))))
 
     (.sum math 0 1)
     (. math sum 0 1)
@@ -108,10 +113,6 @@ Embedded CofeeScript/JavaScript
           }`
        ") 
        "CoffeeScript/JavaScript"))
-
-Demo
-----------
-* [REPL](https://dl.dropboxusercontent.com/u/265158/GitHub/pebble/index.html)
 
 
 Dependence
