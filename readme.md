@@ -1,6 +1,7 @@
 Pebble
 ======================
   Pebble is a dialect of the Lisp programming language translated to JavaScript.
+  Pebble likes Clojure and ClojureScript, but something deferent.
 
 
 Demo
@@ -8,34 +9,54 @@ Demo
 * [REPL](https://dl.dropboxusercontent.com/u/265158/GitHub/pebble/index.html)
 
 
-Function
+def/fn
 ----------
-    (def square (fn [x] (* x x)))
+    ;(def name val)
+    ;(fn param body)
 
-    (defn square [x] (* x x))
+    (def square (fn [x] (* x x)))
 
     (square 4)
 
     ((fn [x] (* x x)) 4)
 
-
-if
-----------
-    (if true  :alway
-        false :never
-        (alert :andDefault))
+    (.map [0 1 2] #(- _0 1))
+    (.map [0 1 2] (fn [_0 _1 _2 _3 _4 _5] (- _0 1)))
 
 
 let
 ----------
+    ;(let bindings body)
+
     (let [a 1
           [b c d] [0 1 2]
           {:e} {:e "uha"}]
       (+ a b))
 
+do
+----------
+    ;(do & bodys)
+
+    (def i 
+      (do
+        (console.log i)
+        (+ i 1)))
+
+
+if
+----------
+    ;(if & clauses)
+
+    (if true  "alway"
+        false "never"
+        false "and more"
+        "default")
+
 
 loop/recur
 ----------
+    ;(loop name? bindings body)
+
     (loop [i 0]
       (if (> i 10) i
         (recur
@@ -43,63 +64,57 @@ loop/recur
             (console.log i)
             (+ i 1)))))
 
-
-for
-----------
-    (for [x lst] x)
-
-
-do
-----------
-    (def i 0)
-    
-    (def j (do
-      (console.log i)
-      (+ i 1)))
+    ;nested loop
+    (loop recur1 [m m]
+      ...
+      (loop recur2 [n n]
+        ...
+        (recur1 ...) ...) ...)
 
 
-namespace
-----------
-    (module math
-      (def deg 10)
-      (export pi 3.24)
-      (export sum #(+ (:0 _) (:1 _))))
-
-    (.sum math 0 1)
-    (. math sum 0 1)
-    ((. math sum) 0 1)
-
-
-class
-----------
-    (defclass Hoge
-      (fn [x] 
-        (do
-          (private a a)
-          ..)
-      (public a )
-      ..)
-
-    (new Hoge 0)
-
-
-try/catch/finally
+throw/try/catch/finally
 ----------
     (try
+      (throw "hoge")
       ..
       (catch e ..)
       (finally ..))
 
 
+Object/Array/PropertyAccess/Keyword
+----------
+    (def obj {:a 0 :b 1 :c 2 :fn #(_0)})
+    (def a "a")
+
+    (. obj a)
+    (. obj "a")
+    (. obj "fn" "hello")
+
+    (.fn obj)
+    (.fn obj "hello")
+
+    (:a obj)
+
+    (def ary [1 9 8 4])
+
+    (. ary 0)
+    (:1 ary)
+
+    (. console log :helloPebble)
+    (.log console :helloPebble)
+
+
 Operators
 ----------
-    . ..
+    set!
+    .
+    new
     == !=
     > >= < <=
     + - * / %
     & | ^ ~ << >> >>>
     and or not ?
-    delete of typeof instanceof
+    of typeof instanceof
 
 
 Embedded CofeeScript/JavaScript

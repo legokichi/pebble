@@ -1,17 +1,18 @@
-# 03 emitter
+#
 
 
   emitter = do ->
 
 
     coffee = (code)->
-      if typeof code isnt "string" then debugger
+      env = new Environment(specialEnv)
+      env = env.extend(builtinEnv) # !! side effect !!
       nodes = reader.parse(code)
-      ary = nodes.expressions.map (exp)->
-        exp.toCoffeeScript()
-      ary.join("\n\n")
-         .split("\n\n")
-         .join("\n")
+      codes = nodes.expressions.map (exp)->
+        [code, env] = exp.toCoffeeScript(env, 0) # !! side effect !!
+        code
+      codes.join("\n\n")
+
 
     compile = (code)->
       CoffeeScript.compile(coffee(code))
