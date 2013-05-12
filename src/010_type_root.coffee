@@ -56,6 +56,7 @@
 
   class Text extends Expression
     toCoffeeScript: (env, i)->
+      console.dir @
       str = @value.replace("\\","\\\\")
       ["\"#{str}\"", env]
 

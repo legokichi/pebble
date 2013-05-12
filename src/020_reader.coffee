@@ -105,7 +105,7 @@
         [rstr1, exp1] = expr(_str)
         rstr2 = space(rstr1)
         if rstr2[0] is "}"
-          [rstr2.slice(1), hsh.set(exp1, new Text(exp1))]
+          [rstr2.slice(1), hsh.set(exp1, new Symbol(exp1.toString()))]
         else
           [rstr3, exp2] = expr(rstr2)
           hash(rstr3, hsh.set(exp1, exp2))
