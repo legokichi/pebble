@@ -22,7 +22,7 @@
         else
           throw """
           CompileError: \"fn\" needs 1 or more arguments
-          (fn params body)
+          (fn [params*] body)
           """
         if !params? and Array.isArray(params)
           throw "SyntaxErorr: function needs parameters"
@@ -62,7 +62,7 @@
         else
           throw """
           CompileError: \"let\" needs 2 arguments
-          (let bindings body)
+          (let [bindings*] body)
           """
         ary = params.toArray().map (exp)->
           [code, _env] = exp.toCoffeeScript(_env, i+1) # !! side effect !!
@@ -117,7 +117,7 @@
         else
           throw """
           CompileError: \"loop\" needs 3 or 4 arguments
-          (loop name? bindings body)
+          (loop name? [bindings*] body)
           """
         ary = params.toArray().map (exp)->
           [code, _env] = exp.toCoffeeScript(_env, i+1) # !! side effect !!

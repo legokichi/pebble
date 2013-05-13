@@ -29,3 +29,17 @@
       new Environment(o)
 
 
+#
+
+  macroEnv =
+    defmacro: new Special
+      apply: (args, env)->
+        _env = env
+        if args.length isnt 3
+          throw """
+          MacroExpandError: \"defmacro\" needs 3 arguments
+          (defmacro name [params*] body)
+          """
+        [name, params, body] = args
+        _env = _env.set(name, new Macro(params, body)) # !! side effect !!
+        [new Void(), _env]

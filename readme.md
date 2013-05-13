@@ -2,6 +2,7 @@ Pebble
 ======================
 * Pebble is a dialect of the Lisp programming language translated to JavaScript.
 * Pebble likes Clojure and ClojureScript, but something different.
+* Pebble has macro.
 
 
 Demo
@@ -128,6 +129,17 @@ Embedded CofeeScript/JavaScript
           }`
        ") 
        "CoffeeScript/JavaScript"))
+
+
+Macro
+----------
+    (defmacro unless [test t f]
+      `(if ,test ,f ,t))
+
+    (unless true
+      "never"
+      "always")
+
 
 
 Dependence

@@ -82,7 +82,6 @@
           code
         _args = args.join(", ")
         ["#{_fn}(#{_args})", env]
-    ###
     eval: (env)->
       [head, tail...]  = @toArray()
       [operator, _env] = head.eval(env)
@@ -90,6 +89,7 @@
          operator.isMacro() or
          operator.isLambda()
         operator.apply(tail, _env)
+        ###
       else if operator.isProperty()
         [something, args] = tail
         [hsh, __env] = something.eval(_env)
@@ -99,18 +99,28 @@
         something = tail[0]
         [hsh, __env] = something.eval(_env)
         [hsh.get(operator), __env]
+        ###
       else
-        console.error "EvaluationError: #{operator} is not callable."
+        throwx "EvaluationError: #{operator} is not callable."
         console.dir @
         debugger
     macroexpand: (env)->
-      [operator, operands...] = @toArray()
+      _env = env
+      [operator, operands...] = ary = @toArray()
+      console.log operator+""
+      console.dir @
+      console.dir _env
       if operator.isSymbol() and
-         env.has(operator)
-        env.get(operator)
-           .apply(tail, env)
+         _env.has(operator)
+        _env.get(operator).apply(operands, _env)
       else
-        [exp, env]
-    ###
+        vals = ary.map (exp)->
+          if exp.isCall()
+            [exp, _env] = exp.macroexpand(_env)
+            exp
+          else
+            exp
+        [new Call(vals), env]
+
 
 

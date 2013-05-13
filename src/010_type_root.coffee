@@ -2,6 +2,7 @@
 
 
   class Expression
+    isVoid:   -> @ instanceof Void
     isSymbol: -> @ instanceof Symbol
     isProperty:->@ instanceof Property
     isNumeral:-> @ instanceof Numeral
@@ -13,8 +14,8 @@
     isCall:   -> @ instanceof Call
     isSpecial:-> @ instanceof Special
     isMacro:->   @ instanceof Macro
-    isLambda:->  @ instanceof Lambda
-    isBuiltIn:-> @ instanceof BuiltIn
+    #isLambda:->  @ instanceof Lambda
+    #isBuiltIn:-> @ instanceof BuiltIn
     constructor: (@value)->
     toString: ->
       if @value? then @value.toString()
@@ -43,9 +44,13 @@
 #
 
 
+  class Void extends Expression
+    toCoffeeScript: (env, i)-> ["", env]
+
+
   class Symbol extends Expression
     eval: (env)->
-      [env.find(@), env]
+      [env.get(@), env]
 
 
   class Property extends Symbol
@@ -56,7 +61,6 @@
 
   class Text extends Expression
     toCoffeeScript: (env, i)->
-      console.dir @
       str = @value.replace("\\","\\\\")
       ["\"#{str}\"", env]
 
