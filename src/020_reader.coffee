@@ -9,7 +9,7 @@
 
 
     space = do ->
-      wsReg = /^\s+|^(?:\s*\;[^\n]*\n)+\s*/
+      wsReg = /^\s+|^(?:\s*\;[^\n]*(?:\n|$))+/
       (str)-> # String
         if wsReg.test(str)
           n = wsReg.exec(str)[0];

@@ -36,12 +36,8 @@
       _bodies = @value.map((exp)->
         [code, _env] = exp.toCoffeeScript(_env, i+1) # !! side effect !!
         "#{ws(i+1)}#{code}"
-      ).join("\n")
-      ["""
-      [
-      #{_bodies}
-      #{ws(i)}]
-      """, env]
+      ).join(", ")
+      ["[#{_bodies}]", env]
 
 
   class Call extends Vector
