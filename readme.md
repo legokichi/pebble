@@ -1,9 +1,7 @@
 Pebble
 ======================
-  Pebble is a dialect of the Lisp programming language translated to JavaScript.
-
-
-  Pebble likes Clojure and ClojureScript, but something deferent.
+* Pebble is a dialect of the Lisp programming language translated to JavaScript.
+* Pebble likes Clojure and ClojureScript, but something different.
 
 
 Demo
