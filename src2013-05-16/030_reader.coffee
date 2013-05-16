@@ -1,11 +1,11 @@
-#
+# reader
 
 
   reader = do ->
 
 
-    parse = (code)->
-      {expressions: root(code, [])}
+    parse = (pscode)->
+      new UnMacroExpandedNodes(root(pscode, []))
 
 
     space = do ->
@@ -117,7 +117,7 @@
       numeralReg = /^\-?(?:0|[1-9]\d*)(?:\.\d+)?(?:(?:e|E)(?:\+|\-)?\d+)?/
       symbolReg = /^[^\s\"\'\`\,\@\;\(\)\[\]\{\}\d][^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\/]*/
       propReg = /^\.[^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\d\/\.][^\s\"\'\`\,\@\;\(\)\[\]\{\}\:\/]*/
-      regReg = /^\/(?:[^\s\/\\]|(?:\\[\/\:\\\^\$\*\+\?\.\(\)\:\=\!\|\{\}\,\[\]bBcdDfnrsStvwWn0xu]))*\/(?:[gimy]{0,4})?/
+      regReg = /^\/((?:[^\s\/\\]|(?:\\[\/\:\\\^\$\*\+\?\.\(\)\:\=\!\|\{\}\,\[\]bBcdDfnrsStvwWn0xu]))*)\/([gimy]{0,4})?/
       (str)-> # [String, Expression]
         _str = space(str)
         if propReg.test(_str)
@@ -126,12 +126,13 @@
           [rstr, new Property(val)]
         else if regReg.test(_str)
           val = regReg.exec(_str)[0]
-          rstr = _str.slice(val.length)
-          [rstr, new Regular(val)]
+          [mch, reg, atr] = regReg.exec(_str)
+          rstr = _str.slice(mch.length)
+          [rstr, new Regular(RegExp(reg, atr))]
         else if numeralReg.test(_str)
           val = numeralReg.exec(_str)[0]
           rstr = _str.slice(val.length)
-          [rstr, new Numeral(val)]
+          [rstr, new Numeral(Number(val))]
         else if keywordReg.test(_str)
           val = keywordReg.exec(_str)[0]
           rstr = _str.slice(val.length)
@@ -145,7 +146,6 @@
           rstr = _str.slice(mch.length)
           [rstr, new Text(val)]
         else
-          console.log _str
           throw "SyntaxError: Unexpected identifier " + _str
 
 

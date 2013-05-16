@@ -1,7 +1,24 @@
 #
 
 
-  specialEnv =
+  compileSpecialEnv =
+    quote: new Special
+      toCoffeeScript: (env, i, args)->
+        _env = env
+        if args.length isnt 1
+          throw """
+          CompileError: \"quote\" needs 1 argument
+          (quote expression)
+          'expression
+          """
+        console.log args[0]
+        if args[0].isCall()
+          [code, _env] = Vector.prototype.toCoffeeScript.call(args[0], _env, i) # !! side effect !!
+        else if args[0].isSymbol()
+          [code, _env] = Text.prototype.toCoffeeScript.call(args[0], _env, i) # !! side effect !!
+        else
+          [code, _env] = args[0].toCoffeeScript(_env, i) # !! side effect !!
+        [code, env]
     def: new Special
       toCoffeeScript: (env, i, args)->
         _env = env
@@ -220,3 +237,5 @@
         #{_bodies}
         #{ws(i)})
         """, env]
+
+

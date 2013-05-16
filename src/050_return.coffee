@@ -1,24 +1,27 @@
 #
 
 
-  ###
-  window?.addEventListener "DOMContentLoaded", ->
-    scripts = document.getElementsByTagName("script")
-    ary = Array.prototype.slice.call(scripts)
-    codes = ary.map (script)->
-      if script.type is "text/pebble" then script.innerText
-      else ""
-    code = codes.join("\n\n")
-    console.log emitter.coffee(code)
-    emitter.eval(code)
-  ###
+  class Nodes
+    constructor: (@expressions)->
+    macro: -> @
+    toCS: ->
+      env = new Environment(compileEnv)
+      @expressions.map((exp)->
+        exp.toCoffeeScript(env, 0)
+      ).join("\n\n")
+    toJS: ->
+      CoffeeScript.compile(@toCS(), {bare: true})
+
+
+#
 
 
   return {
-    nodes:   reader.parse
-    coffee:  emitter.coffee
-    compile: emitter.compile
-    eval:    emitter.eval
+    nodes:(pscode)-> reader.parse(pscode)
+    macro:(pscode)-> @nodes(pscode).macro()
+    toCS: (pscode)-> @macro(pscode).toCS()
+    toJS: (pscode)-> @toCS(pscode).toJS()
+    run:  (pscode)-> Function(@toJS(pscode))()
   }
 
 

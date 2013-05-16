@@ -1,8 +1,6 @@
 Pebble
 ======================
 * Pebble is a dialect of the Lisp programming language translated to JavaScript.
-* Pebble likes Clojure and ClojureScript, but something different.
-* Pebble has macro.
 
 
 Demo
@@ -24,15 +22,6 @@ def/fn
     (.map [0 1 2] #(- _0 1))
     (.map [0 1 2] (fn [_0 _1 _2 _3 _4 _5] (- _0 1)))
 
-
-let
-----------
-    ;(let bindings body)
-
-    (let [a 1
-          [b c d] [0 1 2]
-          {:e} {:e "uha"}]
-      (+ a b))
 
 do
 ----------
@@ -82,7 +71,7 @@ throw/try/catch/finally
       (finally ..))
 
 
-Object/Array/PropertyAccess/Keyword
+Object/Array/PropertyAccess
 ----------
     (def obj {:a 0 :b 1 :c 2 :fn #(_0)})
     (def a "a")
@@ -107,7 +96,7 @@ Object/Array/PropertyAccess/Keyword
 
 Operators
 ----------
-    set!
+    :
     .
     new
     == !=
@@ -115,7 +104,7 @@ Operators
     + - * / %
     & | ^ ~ << >> >>>
     and or not ?
-    of typeof instanceof
+    of typeof instanceof delete
 
 
 Embedded CofeeScript/JavaScript
@@ -129,17 +118,6 @@ Embedded CofeeScript/JavaScript
           }`
        ") 
        "CoffeeScript/JavaScript"))
-
-
-Macro
-----------
-    (defmacro unless [test t f]
-      `(if ,test ,f ,t))
-
-    (unless true
-      "never"
-      "always")
-
 
 
 Dependence
@@ -157,3 +135,5 @@ Copyright &copy; 2013 Legokichi Duckscallion
 Author
 ----------
 Legokichi Duckscallion
+
+

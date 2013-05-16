@@ -2,73 +2,119 @@
 
 
   class Expression
-    isVoid:   -> @ instanceof Void
+    isCall:   -> @ instanceof Call
+    isList:   -> @ instanceof List
+    isHash:   -> @ instanceof Hash
+    isText:   -> @ instanceof Text
+    isNumeral:-> @ instanceof Numeral
+    isKeyword:-> @ instanceof Keyword
     isSymbol: -> @ instanceof Symbol
     isProperty:->@ instanceof Property
-    isNumeral:-> @ instanceof Numeral
-    isText:   -> @ instanceof Text
-    isKeyword:-> @ instanceof Keyword
     isRegular:-> @ instanceof Regular
-    isHash:   -> @ instanceof Hash
-    isVector: -> @ instanceof Vector
-    isCall:   -> @ instanceof Call
     isSpecial:-> @ instanceof Special
-    isMacro:->   @ instanceof Macro
-    #isLambda:->  @ instanceof Lambda
-    #isBuiltIn:-> @ instanceof BuiltIn
+    isVoid:   -> @ instanceof Void
     constructor: (@value)->
-    toString: ->
+    quote: -> @
+    toString: -> @value.toString()
+    toJavaScript: ->
+      if @value? then @value
+      else
+        console.dir @
+        throw "TranslateError: #{@} cannot translate to JavaScript"
+    toCoffeeScript: (env, i)->
       if @value? then @value.toString()
       else
         console.dir @
-        debugger
-        throw "TypeError: #{@} cannot convert to String"
-    toCoffeeScript: (env, i)->
-      if @value?
-        [@value.toString(), env]
-      else
-        console.dir @
-        debugger
         throw "TranslateError: #{@} cannot translate to CoffeeScript"
-    eval: (env)-> [@, env]
-    macroexpand: ->
-      console.dir @
-      debugger
-      throw "MacroExpandError: #{@} is not call form"
-    apply: ->
-      console.dir @
-      debugger
-      throw "ApplyError: #{@} cannot apply."
+
+
+  class Numeral extends Expression
+
+
+  class Regular extends Expression
+
+
+  class Text extends Expression
+    toCoffeeScript: (env, i)->
+      "\"" + @value.split("\\").join("\\\\") + "\""
+
+
+  class Keyword extends Text
+
+
+  class Symbol extends Expression
+    quote: -> new Hash
+      type: new Text("symbol")
+      value: new Text(@value)
+    toCoffeeScript: (env, i)->
+      @value
+        .split("+").join("_PLUS_")
+        .split("-").join("_MINUS_")
+        .split("*").join("_STAR_")
+        .split("/").join("_SLASH_")
+        .split("%").join("_PER_")
+        .split("&").join("_AND_")
+        .split("|").join("_PIPE_")
+        .split("^").join("_HAT_")
+        .split("~").join("_TILDE_")
+        .split("<").join("_LT_")
+        .split(">").join("_GT_")
+        .split("=").join("_EQ_")
+        .split("!").join("_EXCLAM_")
+        .split("?").join("_QUEST_")
+        .split(":").join("_COLON_")
+
+
+  class Property extends Symbol
+
+
+  class Hash extends Expression
+    constructor: (@value={})->
+    set: (key, val)->
+      @value[key] = val # !! side effect !!
+      @
+    get: (key)-> @value[key]
+    quote: ->
+      for key, val of @value
+        @value[key] = val.quote() # !! side effect !!
+      @
+    toCoffeeScript: (env, i)->
+      _bodies = (for _key, val of @value
+        _val = val.toCoffeeScript(env, i+1)
+        "#{ws(i+1)}\"#{_key}\": #{_val}")
+      """
+      {
+      #{_bodies.join("\n")}
+      #{ws(i)}}
+      """
+
+
+  class List extends Hash
+    constructor: (@value=[])->
+    push: (exp)->
+      @value.push(exp) # !! side effect !!
+      @
+    map: (fn)-> new List @value.map(fn)
+    quote: -> @map (val)-> val.quote()
+    toCoffeeScript: (env, i)->
+      _bodies = @value.map((exp)->
+        exp.toCoffeeScript(env, i+1)
+      ).join(", ")
+      "[#{_bodies}]"
 
 
 #
 
 
   class Void extends Expression
-    toCoffeeScript: (env, i)-> ["", env]
+    constructor: (@value="")->
 
 
-  class Symbol extends Expression
-    eval: (env)->
-      [env.get(@), env]
+  class Splicing extends Expression
 
 
-  class Property extends Symbol
-
-
-  class Numeral extends Expression
-
-
-  class Text extends Expression
-    toCoffeeScript: (env, i)->
-      str = @value.replace("\\","\\\\")
-      ["\"#{str}\"", env]
-
-
-  class Keyword extends Text
-
-
-
-  class Regular extends Expression
+  class Special extends Expression
+    constructor: (o)->
+      @[key] = val for key, val of o  # !! side effect !!
 
 

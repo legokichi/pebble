@@ -72,7 +72,7 @@
   color: red;
   font-family: "PT Sans";
 }
-.run{
+#runJS{
   position: absolute;
   top: 0px;
   right: 0px;
@@ -90,32 +90,64 @@
       <textarea id="PebbleScript" row="100" spellcheck="false">
 (alert "Hello Pebble")
 
-(defn eval [exp env]
-  (if
-    (.isSymbol exp) (.find env exp)
-    (not (.isCall exp)) exp
-    (let
-      [[head &amp; tail] (.toArray exp)
-       operator (.eval head)]
-      (if
-        (or
-          (.isSpecial operator)
-          (.isMacro operator)
-          (.isLambda operator)) (.apply operator tail env)
-        debugger))))
+(def a 0)
+(fn [x] x)
+(do a b c)
+(if a b c d e)
+(loop [a 0] (if 1 0 (recur 0)))
+(try a b (catch e c d) (finally e f))
+(coffee "(x)->x")
+
+(.log console "Hello, Pebble.")
+((. console log) "Hello, Pebble.")
+(. console log "Hello, Pebble.")
+((:log console) "Hello, Pebble.")
+((: console "log") "Hello, Pebble.")
+
+(new Array 0 1 2)
+
+(== 0 0 0 0 0)
+(< 0 0 0 0 0)
+(<= 0 0 0 0 0)
+(> 0 0 0 0 0)
+(>= 0 0 0 0 0)
+
+(+ 0 0 0 0)
+(- 0 0 0 0)
+(* 0 0 0 0)
+(/ 0 0 0 0)
+(% 0 0)
+
+(& 0 0 0 0)
+(| 0 0 0 0)
+(^ 0 0 0 0)
+(~ 0)
+(<< 0 0)
+(>> 0 0)
+(>>> 0 0)
+
+(and 0 0 0)
+(or 0 0 0)
+(not 0)
+(? 0)
+
+(typeof 0)
+(of 0 0)
+(instanceof 0 0)
+(delete 0)
 </textarea>
-      <pre class="error" id="PebbleError"></pre>
+      <pre class="error" id="psEr"></pre>
     </div>
     <div class="repl_source_wrap">
       <div>CoffeeScript</div>
       <textarea id="CoffeeScript" row="100" spellcheck="false"></textarea>
-      <pre class="error" id="CoffeeError"></pre>
+      <pre class="error" id="csEr"></pre>
     </div>
     <div class="repl_source_wrap">
       <div>JavaScript</div>
       <textarea id="JavaScript" row="100" spellcheck="false"></textarea>
-      <pre class="error" id="JSError"></pre>
-      <button class="run" id="jRun">RUN</button>
+      <pre class="error" id="jsEr"></pre>
+      <button id="runJS">RUN</button>
     </div>
   </div>
 </div>
@@ -124,57 +156,53 @@
 <script type="text/javascript">
 (function(){
   window.addEventListener("load", function(){
-    var pebbleEl = document.getElementById("PebbleScript");
-    var coffeeEl = document.getElementById("CoffeeScript");
-    var jsEl     = document.getElementById("JavaScript");
-    var pebbleErEl = document.getElementById("PebbleError")
-    var coffeeErEl = document.getElementById("CoffeeError")
-    var jsErEl     = document.getElementById("JSError");
-    var jButtonEl = document.getElementById("jRun");
-    pebbleEl.addEventListener("keyup", refreshP);
-    coffeeEl.addEventListener("keyup", refreshC);
-    jButtonEl.addEventListener("click", runCodeJ);
+    var psEl   = document.getElementById("PebbleScript"),
+        csEl   = document.getElementById("CoffeeScript"),
+        jsEl   = document.getElementById("JavaScript"),
+        psErEl = document.getElementById("psEr"),
+        csErEl = document.getElementById("csEr"),
+        jsErEl = document.getElementById("jsEr"),
+        runEl  = document.getElementById("runJS");
+    psEl.addEventListener("keyup", refreshPS);
+    csEl.addEventListener("keyup", refreshCS);
+    runEl.addEventListener("click", runJS);
     if(window.sessionStorage.getItem("autosave")){
-      pebbleEl.value = window.sessionStorage.getItem("autosave");
+      psEl.value = window.sessionStorage.getItem("autosave");
     }
     setInterval(function(){
-      window.sessionStorage.setItem("autosave", pebbleEl.value);
+      window.sessionStorage.setItem("autosave", psEl.value);
     }, 1000);
-    refreshP();
-    function refreshP(){
+    refreshPS();
+    function refreshPS(){
       console.clear()
-      pebbleErEl.innerHTML = "";
-      coffeeErEl.innerHTML = "";
-      var pebbleCode = pebbleEl.value;
+      psErEl.innerHTML = "";
       try{
-        var coffeeCode = PebbleScript.coffee(pebbleCode);
+        csEl.value = PebbleScript.toCS(psEl.value);
       }catch(e){
-        pebbleErEl.innerHTML = e;
-        throw e;
+        //psErEl.innerHTML = e;
       }
-      coffeeEl.value = coffeeCode;
-      try{
-        var jsCode = CoffeeScript.compile(coffeeCode,{bare:true});
-      }catch(e){
-        coffeeErEl.innerHTML = e;
-        throw e;
-      }
-      jsEl.value     = jsCode;
+      refreshCS();
     }
-    function refreshC(){
-      coffeeErEl.innerHTML = ""
-      var coffeeCode = coffeeEl.value;
+    function refreshCS(){
+      csErEl.innerHTML = "";
       try{
-        var jsCode     = CoffeeScript.compile(coffeeCode,{bare:true});
-        jsEl.value     = jsCode;
+        jsEl.value = CoffeeScript.compile(csEl.value, {bare:true});
       }catch(e){
-        coffeeErEl.innerHTML = e;
-        throw e;
+        csErEl.innerHTML = e;
+      }
+      refreshJS();
+    }
+    function refreshJS(){
+      jsErEl.innerHTML = "";
+      try{
+        Function(jsEl.value);
+      }catch(e){
+        console.error(e);
+        jsErEl.innerHTML = e;
       }
     }
-    function runCodeJ(){
-      var jsCode = jsEl.value;
-      new Function(jsCode)();
+    function runJS(){
+      Function(jsEl.value)();
     }
   });
 }());

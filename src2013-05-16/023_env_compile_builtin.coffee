@@ -1,7 +1,7 @@
 #
 
 
-  builtinEnv = do ->
+  compileBuiltinEnv = do ->
     nthOp = (op)-> (env, i, args)->
       _env = env
       if args.length < 2
@@ -29,10 +29,22 @@
         [_prop, _argus...] = tail.map (exp)->
           [code, _env] = exp.toCoffeeScript(_env, i+1) # !! side effect !!
           code
-        _code = "#{_obj}[#{_prop}]"
+        _code = "#{_obj}.#{_prop}"
         if _argus.length isnt 0
           _code += "("+_argus.join(", ")+")" # !! side effect !!
         [_code, env]
+    ":": new Special
+      toCoffeeScript: (env, i, args)->
+        _env = env
+        if args.length isnt 2
+          throw """
+          CompileError: \":\" needs 2 arguments
+          (: object key)
+          """
+        [obj, key] = args
+        [_obj, _env] = obj.toCoffeeScript(_env, i) # !! side effect !!
+        [_key, _env] = key.toCoffeeScript(_env, i) # !! side effect !!
+        ["#{_obj}[#{_key}]", env]
     new: new Special
       toCoffeeScript: (env, i, args)->
         _env = env
@@ -205,3 +217,5 @@
         [_class, _env] = args[0].toCoffeeScript(_env, i+1) # !! side effect !!
         [_x, _env] = args[1].toCoffeeScript(_env, i+1)  # !! side effect !!
         ["(#{_x} instanceof #{_class})", env]
+
+
