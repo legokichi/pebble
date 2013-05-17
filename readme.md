@@ -1,6 +1,6 @@
 Pebble
 ======================
-* Pebble is a dialect of the Lisp programming language translated to JavaScript.
+* Pebble is a dialect of Lisp, and translated to CoffeeScript.
 
 
 Demo
@@ -94,6 +94,15 @@ Object/Array/PropertyAccess
     (.log console :helloPebble)
 
 
+Macro
+----------
+    (defmacro when
+      ([test] `(alert :Error))
+      ([test & more] `(if ,test (do ,@more))))
+
+    (when a b c d)
+
+
 Operators
 ----------
     :
@@ -107,7 +116,7 @@ Operators
     of typeof instanceof delete
 
 
-Embedded CofeeScript/JavaScript
+Embedded CoffeeScript/JavaScript
 ----------
     (.log console
       ((coffee "

@@ -176,11 +176,11 @@
     function refreshPS(){
       console.clear()
       psErEl.innerHTML = "";
-      try{
+      //try{
         csEl.value = PebbleScript.toCS(psEl.value);
-      }catch(e){
+      //}catch(e){
         //psErEl.innerHTML = e;
-      }
+      //}
       refreshCS();
     }
     function refreshCS(){

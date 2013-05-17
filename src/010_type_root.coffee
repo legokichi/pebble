@@ -12,10 +12,12 @@
     isProperty:->@ instanceof Property
     isRegular:-> @ instanceof Regular
     isSpecial:-> @ instanceof Special
-    isVoid:   -> @ instanceof Void
+    isMacro:  -> @ instanceof Macro
+    isSplicing:->@ instanceof Splicing
     constructor: (@value)->
-    quote: -> @
     toString: -> @value.toString()
+    quote: -> @
+    syntaxQuote: -> @
     toJavaScript: ->
       if @value? then @value
       else
@@ -43,9 +45,13 @@
 
 
   class Symbol extends Expression
-    quote: -> new Hash
-      type: new Text("symbol")
-      value: new Text(@value)
+    quote: ->
+      new Call([
+        new Symbol("new")
+        new Symbol("Symbol")
+        new Text("#{@value}")
+      ])
+    syntaxQuote:-> @quote()
     toCoffeeScript: (env, i)->
       @value
         .split("+").join("_PLUS_")
@@ -78,6 +84,10 @@
       for key, val of @value
         @value[key] = val.quote() # !! side effect !!
       @
+    syntaxQuote: ->
+      for key, val of @value
+        @value[key] = val.syntaxQuote() # !! side effect !!
+      @
     toCoffeeScript: (env, i)->
       _bodies = (for _key, val of @value
         _val = val.toCoffeeScript(env, i+1)
@@ -94,8 +104,12 @@
     push: (exp)->
       @value.push(exp) # !! side effect !!
       @
-    map: (fn)-> new List @value.map(fn)
-    quote: -> @map (val)-> val.quote()
+    syntaxQuote: ->
+      new List @value.map (val)->
+        val.syntaxQuote() # !! side effect !!
+    quote: ->
+      new List @value.map (val)->
+        val.quote()
     toCoffeeScript: (env, i)->
       _bodies = @value.map((exp)->
         exp.toCoffeeScript(env, i+1)
@@ -106,15 +120,21 @@
 #
 
 
-  class Void extends Expression
-    constructor: (@value="")->
-
-
-  class Splicing extends Expression
-
-
   class Special extends Expression
     constructor: (o)->
       @[key] = val for key, val of o  # !! side effect !!
+
+
+  class Macro extends Expression
+    constructor: (args)->
+      @value = new Call([new Symbol("fn")].concat(args))
+    toCoffeeScript: (env, i, args)->
+      fn = @value.compile(env)
+      console.log fn
+      console.log args
+      result = fn(Symbol, args)
+      console.log result
+      console.log js2ps(result)
+      js2ps(result).toCoffeeScript(env, i)
 
 

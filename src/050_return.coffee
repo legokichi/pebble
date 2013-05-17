@@ -3,8 +3,8 @@
 
   class Nodes
     constructor: (@expressions)->
-    macro: -> @
     toCS: ->
+      macroNameSpace = {} # !! side effect !!
       env = new Environment(compileEnv)
       @expressions.map((exp)->
         exp.toCoffeeScript(env, 0)
@@ -18,8 +18,7 @@
 
   return {
     nodes:(pscode)-> reader.parse(pscode)
-    macro:(pscode)-> @nodes(pscode).macro()
-    toCS: (pscode)-> @macro(pscode).toCS()
+    toCS: (pscode)-> @nodes(pscode).toCS()
     toJS: (pscode)-> @toCS(pscode).toJS()
     run:  (pscode)-> Function(@toJS(pscode))()
   }

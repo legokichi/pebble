@@ -33,15 +33,34 @@
       "#{op}(#{args[0].toCoffeeScript(env, i+1)})"
 
 
+    defmacro: new Special
+      toCoffeeScript: (env, i, args)->
+        if args.length is 1
+          throw """
+          CompileError: \"defmacro\" needs 3 arguments
+          (defmacro name [params*] body)
+          """
+        [name, tail...] = args
+        compileEnv[name] = new Macro(tail)
+        ""
     quote: new Special
       toCoffeeScript: (env, i, args)->
         if args.length isnt 1
           throw """
           CompileError: \"quote\" needs 1 argument
           (quote expression)
-          'expression
+          'expression'
           """
         args[0].quote().toCoffeeScript(env, i)
+    "syntax-quote": new Special
+      toCoffeeScript: (env, i, args)->
+        if args.length isnt 1
+          throw """
+          CompileError: \"syntax-quote\" needs 1 argument
+          (syntax-quote expression)
+          `expression
+          """
+        args[0].syntaxQuote().toCoffeeScript(env, i)
     def: new Special
       toCoffeeScript: (env, i, args)->
         if args.length isnt 2
@@ -54,19 +73,53 @@
         "#{_name} = #{_val}"
     fn: new Special
       toCoffeeScript: (env, i, args)->
-        if args.length isnt 2 or !args[0].isList()
+        if args.length < 2
           throw """
           CompileError: \"fn\" needs 1 or more arguments
           (fn [params*] body)
+          (fn ([params*] body)+)
           """
-        _params = args[0].value.map (exp)->
-          exp.toCoffeeScript(env, i+1)
-        _body = args[1].toCoffeeScript(env, i+1)
-        """
-        ((#{_params.join(", ")})->
-        #{ws(i+1)}#{_body}
-        #{ws(i)})
-        """
+        if args.length is 2 and args[0].isList() and not args[0].isCall()
+          _params = args[0].value.map (exp)->
+            exp.toCoffeeScript(env, i+1)
+          _body = args[1].toCoffeeScript(env, i+1)
+          """
+          ((#{_params.join(", ")})->
+          #{ws(i+1)}#{_body}
+          #{ws(i)})
+          """
+        else if args.every((val)-> val.isCall())
+          _bodies = args.map (call)->
+            if not call.value then throw "arguments error"
+            [params, body] = call.value
+            if /\.\.\.$/.test(params.value[params.value.length-1].value)
+              _params = params.value.map (exp)->
+                exp.toCoffeeScript(env, i+2)
+              __body = body.toCoffeeScript(env, i+3)
+              """
+              else
+              #{ws(i+3)}if arguments.length isnt 0
+              #{ws(i+4)}((#{_params.join(", ")})->
+              #{ws(i+5)}#{__body}
+              #{ws(i+4)}).apply(this, arguments)
+              """
+            else
+              _params = params.value.map (exp)->
+                exp.toCoffeeScript(env, i+1)
+              __body = body.toCoffeeScript(env, i+2)
+              """
+              when #{_params.length}
+              #{ws(i+3)}((#{_params.join(", ")})->
+              #{ws(i+4)}#{__body}
+              #{ws(i+3)}).apply(this, arguments)
+              """
+          """
+          (->
+          #{ws(i+1)}switch arguments.length
+          #{ws(i+2)}#{_bodies.join("\n#{ws(i+2)}")}
+          #{ws(i)})
+          """
+        else throw "CompileError: fn something wrong"
     do: new Special
       toCoffeeScript: (env, i, args)->
         if args.length < 1
@@ -118,7 +171,7 @@
         if args.length < 2 or 3 < args.length or
            !name.isSymbol() or !params.isList()
           throw """
-          CompileError: \"loop\" needs 3 or 4 arguments
+          CompileError: \"loop\" needs 2 or 3 arguments
           (loop name? [bindings*] body)
           """
         ary = params.value.map (exp)-> exp.toCoffeeScript(env, i+1)
@@ -313,13 +366,7 @@
         if args.length < 2 then args.unshift(new Numeral(1)) # !! side effect !!
         multiOp("/")(env, i, args)
     "%": new Special
-      toCoffeeScript: (env, i, args)->
-        if args.length isnt 2
-          throw """
-          CompileError: \"%\" needs 2 arguments
-          (% num div)
-          """
-        multiOp("%")(env, i, args)
+      toCoffeeScript:  twinOp("%")
 
 
 #
